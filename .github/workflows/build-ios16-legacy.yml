@@ -16,12 +16,6 @@ jobs:
           submodules: recursive
 
       - run: |
-          xcodebuild \
-            -project Meshtastic.xcodeproj \
-            -scheme Meshtastic \
-            -resolvePackageDependencies
-
-      - run: |
           set -eo pipefail
           xcodebuild \
             -project Meshtastic.xcodeproj \
