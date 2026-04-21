@@ -33,9 +33,9 @@ jobs:
           test -d "$APP"
           mkdir -p Payload
           cp -R "$APP" Payload/
-          zip -qr gvh.MeshtasticClient-2.3.9.ipa Payload
+          zip -qr gvh.MeshtasticClient-1.3.41.ipa Payload
 
       - uses: actions/upload-artifact@v7
         with:
-          name: meshtastic-2.3.9-ios16-unsigned
-          path: gvh.MeshtasticClient-2.3.9.ipa
+          name: meshtastic-1.3.41-ios15-unsigned
+          path: gvh.MeshtasticClient-1.3.41.ipa
