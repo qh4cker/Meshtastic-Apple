@@ -86,7 +86,7 @@ struct RouteRecorder: View {
 				.padding()
 			}
 			.sheet(isPresented: $isShowingDetails) {
-				NavigationStack {
+				NavigationStackCompat {
 					VStack {
 						if locationsHandler.isRecording {
 							HStack(alignment: .center) {

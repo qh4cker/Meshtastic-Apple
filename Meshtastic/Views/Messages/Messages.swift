@@ -8,7 +8,9 @@
 import SwiftUI
 import CoreData
 import OSLog
+#if canImport(TipKit)
 import TipKit
+#endif
 
 struct Messages: View {
 
@@ -24,7 +26,9 @@ struct Messages: View {
 	@State private var columnVisibility = NavigationSplitViewVisibility.all
 
 	var body: some View {
-		NavigationSplitView(columnVisibility: $columnVisibility) {
+		Group {
+			if #available(iOS 16.0, *) {
+				NavigationSplitView(columnVisibility: $columnVisibility) {
 			List(selection: $router.navigationState.messages) {
 				NavigationLink(value: MessagesNavigationState.channels()) {
 					Spacer()
@@ -63,9 +67,13 @@ struct Messages: View {
 					$0[.leading]
 				}
 				Spacer()
-				TipView(MessagesTip(), arrowEdge: .top)
-					.tipViewStyle(PersistentTip())
-					.listRowSeparator(.hidden)
+				#if canImport(TipKit)
+				if #available(iOS 17.0, *) {
+					TipView(MessagesTip(), arrowEdge: .top)
+						.tipViewStyle(PersistentTip())
+						.listRowSeparator(.hidden)
+				}
+				#endif
 				Spacer()
 					.listRowSeparator(.hidden)
 			}
@@ -98,6 +106,13 @@ struct Messages: View {
 			}
 		}.onChange(of: router.navigationState) {
 			setupNavigationState()
+		}
+			} else {
+				NavigationStackCompat {
+					Text("Messages requires iOS 16 or newer.")
+						.navigationTitle("Messages")
+				}
+			}
 		}
 	}
 

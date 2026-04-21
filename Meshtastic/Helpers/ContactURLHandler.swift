@@ -7,7 +7,9 @@
 import SwiftUI
 import CoreData
 import OSLog
+#if canImport(TipKit)
 import TipKit
+#endif
 import MeshtasticProtobufs
 
 struct ContactURLHandler {

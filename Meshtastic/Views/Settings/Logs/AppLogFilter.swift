@@ -109,7 +109,7 @@ struct AppLogFilter: View {
 
 	var body: some View {
 
-		NavigationStack {
+		NavigationStackCompat {
 			Form {
 				Section(header: HStack {
 					Text("Categories")

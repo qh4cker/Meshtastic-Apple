@@ -5,7 +5,9 @@
 //  Copyright(c) Garth Vander Houwen 8/31/23.
 //
 import SwiftUI
+#if canImport(TipKit)
 import TipKit
+#endif
 
 struct ConnectionTip: Tip {
 

@@ -72,12 +72,20 @@ struct NodeMapContent: MapContent {
 										}
 
 								} else {
-									Image(systemName: "flipphone")
-										.symbolEffect(.pulse.byLayer)
-										.padding(5)
-										.foregroundStyle(nodeBorderColor)
-										.background(Color(UIColor(hex: UInt32(node.num)).darker()))
-										.clipShape(Circle())
+									if #available(iOS 17.0, *) {
+										Image(systemName: "flipphone")
+											.symbolEffect(.pulse.byLayer)
+											.padding(5)
+											.foregroundStyle(nodeBorderColor)
+											.background(Color(UIColor(hex: UInt32(node.num)).darker()))
+											.clipShape(Circle())
+									} else {
+										Image(systemName: "flipphone")
+											.padding(5)
+											.foregroundStyle(nodeBorderColor)
+											.background(Color(UIColor(hex: UInt32(node.num)).darker()))
+											.clipShape(Circle())
+									}
 										.onTapGesture {
 											selectedPosition = (selectedPosition == position ? nil : position)
 										}

@@ -30,7 +30,7 @@ struct NodeDetail: View {
 	@State var showingCompassSheet = false
 	
 	var body: some View {
-		NavigationStack {
+		NavigationStackCompat {
 			ScrollViewReader { scrollView in
 				Color.clear
 					.frame(height: 0) // Ensure it has no height

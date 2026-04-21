@@ -896,31 +896,31 @@ actor MeshPackets {
 						// Update our live activity if there is one running, not available on mac
 #if !targetEnvironment(macCatalyst)
 #if canImport(ActivityKit)
-						
-						let fifteenMinutesLater = Calendar.current.date(byAdding: .minute, value: (Int(15) ), to: Date())!
-						let date = Date.now...fifteenMinutesLater
-						let updatedMeshStatus = MeshActivityAttributes.MeshActivityStatus(uptimeSeconds: telemetry.uptimeSeconds.map { UInt32($0) },
-																						  channelUtilization: telemetry.channelUtilization,
-																						  airtime: telemetry.airUtilTx,
-																						  sentPackets: UInt32(telemetry.numPacketsTx),
-																						  receivedPackets: UInt32(telemetry.numPacketsRx),
-																						  badReceivedPackets: UInt32(telemetry.numPacketsRxBad),
-																						  dupeReceivedPackets: UInt32(telemetry.numRxDupe),
-																						  packetsSentRelay: UInt32(telemetry.numTxRelay),
-																						  packetsCanceledRelay: UInt32(telemetry.numTxRelayCanceled),
-																						  nodesOnline: UInt32(telemetry.numOnlineNodes),
-																						  totalNodes: UInt32(telemetry.numTotalNodes),
-																						  timerRange: date)
-						
-						let alertConfiguration = AlertConfiguration(title: "Mesh activity update", body: "Updated Node Stats Data.", sound: .default)
-						let updatedContent = ActivityContent(state: updatedMeshStatus, staleDate: nil)
-						
-						let meshActivity = Activity<MeshActivityAttributes>.activities.first(where: { $0.attributes.nodeNum == connectedNode })
-						if meshActivity != nil {
-							Task {
-								// await meshActivity?.update(updatedContent, alertConfiguration: alertConfiguration)
-								await meshActivity?.update(updatedContent)
-								Logger.services.debug("Updated live activity.")
+						if #available(iOS 16.1, *) {
+							let fifteenMinutesLater = Calendar.current.date(byAdding: .minute, value: (Int(15) ), to: Date())!
+							let date = Date.now...fifteenMinutesLater
+							let updatedMeshStatus = MeshActivityAttributes.MeshActivityStatus(uptimeSeconds: telemetry.uptimeSeconds.map { UInt32($0) },
+																							  channelUtilization: telemetry.channelUtilization,
+																							  airtime: telemetry.airUtilTx,
+																							  sentPackets: UInt32(telemetry.numPacketsTx),
+																							  receivedPackets: UInt32(telemetry.numPacketsRx),
+																							  badReceivedPackets: UInt32(telemetry.numPacketsRxBad),
+																							  dupeReceivedPackets: UInt32(telemetry.numRxDupe),
+																							  packetsSentRelay: UInt32(telemetry.numTxRelay),
+																							  packetsCanceledRelay: UInt32(telemetry.numTxRelayCanceled),
+																							  nodesOnline: UInt32(telemetry.numOnlineNodes),
+																							  totalNodes: UInt32(telemetry.numTotalNodes),
+																							  timerRange: date)
+							
+							let _ = AlertConfiguration(title: "Mesh activity update", body: "Updated Node Stats Data.", sound: .default)
+							let updatedContent = ActivityContent(state: updatedMeshStatus, staleDate: nil)
+							
+							let meshActivity = Activity<MeshActivityAttributes>.activities.first(where: { $0.attributes.nodeNum == connectedNode })
+							if meshActivity != nil {
+								Task {
+									await meshActivity?.update(updatedContent)
+									Logger.services.debug("Updated live activity.")
+								}
 							}
 						}
 #endif

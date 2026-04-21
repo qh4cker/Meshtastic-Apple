@@ -13,7 +13,9 @@ struct WidgetsBundle: WidgetBundle {
     var body: some Widget {
         // Widgets()
 		#if canImport(ActivityKit)
-		WidgetsLiveActivity()
+		if #available(iOS 16.1, *) {
+			WidgetsLiveActivity()
+		}
 		#endif
 
     }

@@ -28,7 +28,7 @@ struct NodeListFilter: View {
 	
 	var body: some View {
 
-		NavigationStack {
+		NavigationStackCompat {
 			Form {
 				Section(header: Text(filterTitle)) {
 					Toggle(isOn: $filters.viaLora) {

@@ -11,6 +11,7 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+@available(iOS 16.1, *)
 struct MeshActivityAttributes: ActivityAttributes {
 	public typealias MeshActivityStatus = ContentState
 	public struct ContentState: Codable, Hashable {

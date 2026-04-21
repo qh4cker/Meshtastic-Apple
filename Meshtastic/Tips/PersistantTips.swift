@@ -4,7 +4,9 @@
 //
 //  Created by Garth Vander Houwen on 6/19/25.
 //
+#if canImport(TipKit)
 import TipKit
+#endif
 
 struct PersistentTip: TipViewStyle {
 	func makeBody(configuration: Configuration) -> some View {

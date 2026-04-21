@@ -45,8 +45,10 @@ struct MeshMap: View {
 	@StateObject var filters = NodeFilterParameters()
 
 	var body: some View {
-		NavigationStack {
-			ZStack {
+		Group {
+			if #available(iOS 17.0, *) {
+				NavigationStack {
+					ZStack {
 				MapReader { reader in
 					Map(
 						position: $position,
@@ -200,6 +202,13 @@ struct MeshMap: View {
 		.onReceive(NotificationCenter.default.publisher(for: Foundation.Notification.Name.mapDataFileDeleted)) { notification in
 			if let deletedFileId = notification.object as? UUID {
 				enabledOverlayConfigs.remove(deletedFileId)
+					}
+				}
+			} else {
+				NavigationStackCompat {
+					Text("Map requires iOS 17 or newer.")
+						.navigationTitle("Map")
+				}
 			}
 		}
 	}

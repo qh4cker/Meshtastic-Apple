@@ -10,7 +10,9 @@ import MapKit
 import MeshtasticProtobufs
 import OSLog
 import SwiftUI
+#if canImport(TipKit)
 import TipKit
+#endif
 
 func generateChannelKey(size: Int) -> String {
 	var keyData = Data(count: size)
@@ -62,9 +64,13 @@ struct Channels: View {
 
 		VStack {
 			List {
-				TipView(CreateChannelsTip(), arrowEdge: .bottom)
-					.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
-					.listRowSeparator(.hidden)
+				#if canImport(TipKit)
+				if #available(iOS 17.0, *) {
+					TipView(CreateChannelsTip(), arrowEdge: .bottom)
+						.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
+						.listRowSeparator(.hidden)
+				}
+				#endif
 				if node != nil && node?.myInfo != nil {
 					ForEach(node?.myInfo?.channels?.array as? [ChannelEntity] ?? [], id: \.self) { (channel: ChannelEntity) in
 						Button(action: {

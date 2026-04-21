@@ -7,7 +7,9 @@
 
 import SwiftUI
 import OSLog
+#if canImport(TipKit)
 import TipKit
+#endif
 import MeshtasticProtobufs
 
 struct Settings: View {
@@ -340,16 +342,18 @@ struct Settings: View {
 	}
 
 	var body: some View {
-		NavigationStack(
-			path: Binding<[SettingsNavigationState]>(
-				get: {
-					[router.navigationState.settings].compactMap { $0 }
-				},
-				set: { newPath in
-					router.navigationState.settings = newPath.first
-				}
-			)
-		) {
+		Group {
+			if #available(iOS 16.0, *) {
+				NavigationStack(
+					path: Binding<[SettingsNavigationState]>(
+						get: {
+							[router.navigationState.settings].compactMap { $0 }
+						},
+						set: { newPath in
+							router.navigationState.settings = newPath.first
+						}
+					)
+				) {
 			let node = nodes.first(where: { $0.num == preferredNodeNum })
 			List {
 				NavigationLink(value: SettingsNavigationState.about) {
@@ -451,10 +455,14 @@ struct Settings: View {
 										}
 									}
 								}
-								TipView(AdminChannelTip(), arrowEdge: .top)
-									.tipViewStyle(PersistentTip())
-									.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
-									.listRowSeparator(.hidden)
+								#if canImport(TipKit)
+								if #available(iOS 17.0, *) {
+									TipView(AdminChannelTip(), arrowEdge: .top)
+										.tipViewStyle(PersistentTip())
+										.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
+										.listRowSeparator(.hidden)
+								}
+								#endif
 							} else {
 								if accessoryManager.isConnected {
 									Text("Connected Node \(node?.user?.longName?.addingVariationSelectors ?? "Unknown".localized)")
@@ -566,6 +574,14 @@ struct Settings: View {
 				leading: MeshtasticLogo().onLongPressGesture(minimumDuration: 1.0) {
 				}
 			)
+				}
+			} else {
+				NavigationView {
+					Text("Settings requires iOS 16 or newer.")
+						.navigationTitle("Settings")
+				}
+				.navigationViewStyle(StackNavigationViewStyle())
+			}
 		}
 	}
 	
@@ -575,7 +591,7 @@ struct Settings: View {
 				self.selectedNode = Int(accessoryManager.isConnected ? nodeNum : 0)
 			}
 		} else {
-			self.selectedNode = Int(accessoryManager.isConnected ? nodeNum: 0)
+			self.selectedNode = Int(accessoryManager.isConnected ? nodeNum : 0)
 		}
 	}
 }

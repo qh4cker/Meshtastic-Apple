@@ -123,13 +123,22 @@ struct MessageText: View {
 			}
 		}
 		if tapBackDestination.overlaySensorMessage && message.portNum == Int32(PortNum.detectionSensorApp.rawValue) {
-			Image(systemName: "sensor.fill")
-				.padding()
-				.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-				.foregroundStyle(Color.orange)
-				.symbolRenderingMode(.multicolor)
-				.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
-				.offset(x: 20, y: -20)
+			if #available(iOS 17.0, *) {
+				Image(systemName: "sensor.fill")
+					.padding()
+					.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+					.foregroundStyle(Color.orange)
+					.symbolRenderingMode(.multicolor)
+					.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
+					.offset(x: 20, y: -20)
+			} else {
+				Image(systemName: "sensor.fill")
+					.padding()
+					.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+					.foregroundStyle(Color.orange)
+					.symbolRenderingMode(.multicolor)
+					.offset(x: 20, y: -20)
+			}
 		}
 	}
 	

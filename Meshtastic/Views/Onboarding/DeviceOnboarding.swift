@@ -305,22 +305,31 @@ struct DeviceOnboarding: View {
 	}
 	
 	var body: some View {
-		NavigationStack(path: $navigationPath) {
-			welcomeView
-				.navigationDestination(for: SetupGuide.self) { guide in
-					switch guide {
-					case .notifications:
-						notificationView
-					case .location:
-						locationView
-					case .bluetooth:
-						bluetoothView
-					case .localNetwork:
-						localNetworkView
-					}
+		Group {
+			if #available(iOS 16.0, *) {
+				NavigationStack(path: $navigationPath) {
+					welcomeView
+						.navigationDestination(for: SetupGuide.self) { guide in
+							switch guide {
+							case .notifications:
+								notificationView
+							case .location:
+								locationView
+							case .bluetooth:
+								bluetoothView
+							case .localNetwork:
+								localNetworkView
+							}
+						}
 				}
+				.toolbar(.hidden)
+			} else {
+				NavigationStackCompat {
+					Text("Onboarding requires iOS 16 or newer.")
+						.navigationTitle("Setup")
+				}
+			}
 		}
-		.toolbar(.hidden)
 	}
 	
 	@ViewBuilder

@@ -25,7 +25,7 @@ struct ChannelForm: View {
 	@Binding var supportedVersion: Bool
 
 	var body: some View {
-		NavigationStack {
+		NavigationStackCompat {
 			Form {
 				Section(header: Text("Channel Details")) {
 					HStack {

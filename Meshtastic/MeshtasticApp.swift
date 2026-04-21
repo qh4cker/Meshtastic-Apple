@@ -3,7 +3,9 @@
 import SwiftUI
 import CoreData
 import OSLog
+#if canImport(TipKit)
 import TipKit
+#endif
 import MeshtasticProtobufs
 import DatadogCore
 import DatadogCrashReporting
@@ -92,8 +94,12 @@ struct MeshtasticAppleApp: App {
 		// Initialize map data manager
 		MapDataManager.shared.initialize()
 #if DEBUG
-		// Show tips in development
-		try? Tips.resetDatastore()
+		#if canImport(TipKit)
+		if #available(iOS 17.0, *) {
+			// Show tips in development
+			try? Tips.resetDatastore()
+		}
+		#endif
 #endif
 		if !UserDefaults.firstLaunch {
 			// If this is first launch, we will show onboarding screens which
@@ -142,12 +148,17 @@ struct MeshtasticAppleApp: App {
 			)
 			.sheet(item: $saveChannelLink
 			) { link in
-				SaveChannelQRCode(
+				let view = SaveChannelQRCode(
 					channelSetLink: link.data,
 					addChannels: link.add, // <-- Uses the now reliable 'add' boolean
 					accessoryManager: accessoryManager				)
-				.presentationDetents([.large])
-				.presentationDragIndicator(.visible)
+				if #available(iOS 16.0, *) {
+					view
+						.presentationDetents([.large])
+						.presentationDragIndicator(.visible)
+				} else {
+					view
+				}
 			}
 			.onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
 				Logger.mesh.debug("URL received \(userActivity, privacy: .public)")
@@ -180,17 +191,18 @@ struct MeshtasticAppleApp: App {
 					appState.router.route(url: url)
 				}
 			})
+			#if canImport(TipKit)
 			.task {
-				try? Tips.configure(
-					[
-						// Reset which tips have been shown and what parameters have been tracked, useful during testing and for this sample project
-						.datastoreLocation(.applicationDefault),
-						// When should the tips be presented? If you use .immediate, they'll all be presented whenever a screen with a tip appears.
-						// You can adjust this on per tip level as well
-						.displayFrequency(.immediate)
-					]
-				)
+				if #available(iOS 17.0, *) {
+					try? Tips.configure(
+						[
+							.datastoreLocation(.applicationDefault),
+							.displayFrequency(.immediate)
+						]
+					)
+				}
 			}
+			#endif
 		}
 		.onChange(of: scenePhase) { (_, newScenePhase) in
 			accessoryManager.isInBackground = (newScenePhase == .background)

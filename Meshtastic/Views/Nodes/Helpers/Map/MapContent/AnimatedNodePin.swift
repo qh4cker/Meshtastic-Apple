@@ -29,13 +29,22 @@ struct AnimatedNodePin: View, Equatable {
 			}
 
 			if hasDetectionSensorMetrics {
-				Image(systemName: "sensor.fill")
-					.symbolRenderingMode(.palette)
-					.symbolEffect(.variableColor)
-					.padding()
-					.foregroundStyle(.white)
-					.background(swiftUIColor)
-					.clipShape(Circle())
+				if #available(iOS 17.0, *) {
+					Image(systemName: "sensor.fill")
+						.symbolRenderingMode(.palette)
+						.symbolEffect(.variableColor)
+						.padding()
+						.foregroundStyle(.white)
+						.background(swiftUIColor)
+						.clipShape(Circle())
+				} else {
+					Image(systemName: "sensor.fill")
+						.symbolRenderingMode(.palette)
+						.padding()
+						.foregroundStyle(.white)
+						.background(swiftUIColor)
+						.clipShape(Circle())
+				}
 			} else {
 				CircleText(text: shortName ?? "?", color: swiftUIColor, circleSize: 40)
 			}

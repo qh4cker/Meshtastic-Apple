@@ -11,7 +11,9 @@ import CoreData
 import CoreLocation
 import CoreBluetooth
 import OSLog
+#if canImport(TipKit)
 import TipKit
+#endif
 #if canImport(ActivityKit)
 import ActivityKit
 #endif
@@ -29,16 +31,31 @@ struct Connect: View {
 	@ObservedObject var manualConnections = ManualConnectionList.shared
 	
 	var body: some View {
-		NavigationStack {
-			VStack(spacing: 0) {
+		Group {
+			if #available(iOS 16.0, *) {
+				NavigationStack { connectContent }
+			} else {
+				NavigationView { connectContent }
+					.navigationViewStyle(StackNavigationViewStyle())
+			}
+		}
+	}
+
+	@ViewBuilder
+	private var connectContent: some View {
+		VStack(spacing: 0) {
 				List {
 					Section {
 						if let connectedDevice = accessoryManager.activeConnection?.device,
 						   accessoryManager.isConnected || accessoryManager.isConnecting {
-							TipView(ConnectionTip(), arrowEdge: .bottom)
-								.tipViewStyle(PersistentTip())
-								.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
-								.listRowSeparator(.hidden)
+							#if canImport(TipKit)
+							if #available(iOS 17.0, *) {
+								TipView(ConnectionTip(), arrowEdge: .bottom)
+									.tipViewStyle(PersistentTip())
+									.tipBackground(colorScheme == .dark ? Color(.systemBackground) : Color(.secondarySystemBackground))
+									.listRowSeparator(.hidden)
+							}
+							#endif
 							VStack(alignment: .leading) {
 								HStack {
 									VStack(alignment: .center) {
@@ -81,10 +98,16 @@ struct Connect: View {
 												.foregroundColor(.green)
 										case .retrievingDatabase(let nodeCount):
 											HStack {
-												Image(systemName: "square.stack.3d.down.forward")
-													.symbolRenderingMode(.multicolor)
-													.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
-													.foregroundColor(.teal)
+												if #available(iOS 17.0, *) {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
+														.foregroundColor(.teal)
+												} else {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.foregroundColor(.teal)
+												}
 												if let expectedNodeDBSize = accessoryManager.expectedNodeDBSize {
 													if UIDevice.current.userInterfaceIdiom == .phone {
 														VStack(alignment: .leading, spacing: 2.0) {
@@ -108,19 +131,31 @@ struct Connect: View {
 											}
 										case .communicating:
 											HStack {
-												Image(systemName: "square.stack.3d.down.forward")
-													.symbolRenderingMode(.multicolor)
-													.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
-													.foregroundColor(.orange)
+												if #available(iOS 17.0, *) {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
+														.foregroundColor(.orange)
+												} else {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.foregroundColor(.orange)
+												}
 												Text("Communicating").font(.callout)
 													.foregroundColor(.orange)
 											}
 										case .retrying(let attempt):
 											HStack {
-												Image(systemName: "square.stack.3d.down.forward")
-													.symbolRenderingMode(.multicolor)
-													.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
-													.foregroundColor(.orange)
+												if #available(iOS 17.0, *) {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
+														.foregroundColor(.orange)
+												} else {
+													Image(systemName: "square.stack.3d.down.forward")
+														.symbolRenderingMode(.multicolor)
+														.foregroundColor(.orange)
+												}
 												Text("Retrying (attempt \(attempt))").font(.callout)
 													.foregroundColor(.orange)
 											}
@@ -154,12 +189,16 @@ struct Connect: View {
 											if !liveActivityStarted {
 #if canImport(ActivityKit)
 												Logger.services.info("Start live activity.")
-												startNodeActivity()
+												if #available(iOS 16.1, *) {
+													startNodeActivity()
+												}
 #endif
 											} else {
 #if canImport(ActivityKit)
 												Logger.services.info("Stop live activity.")
-												endActivity()
+												if #available(iOS 16.1, *) {
+													endActivity()
+												}
 #endif
 											}
 										} label: {
@@ -296,7 +335,7 @@ struct Connect: View {
 						.textCase(nil)
 					}
 				}
-				.scrollContentBackground(.hidden)
+				.applyScrollContentBackgroundHiddenIfAvailable()
 				HStack(alignment: .center) {
 					Spacer()
 #if targetEnvironment(macCatalyst)
@@ -369,6 +408,7 @@ struct Connect: View {
 	}
 #if !targetEnvironment(macCatalyst)
 #if canImport(ActivityKit)
+	@available(iOS 16.1, *)
 	func startNodeActivity() {
 		liveActivityStarted = true
 		// 15 Minutes Local Stats Interval
@@ -403,6 +443,7 @@ struct Connect: View {
 		}
 	}
 	
+	@available(iOS 16.1, *)
 	func endActivity() {
 		liveActivityStarted = false
 		Task {
@@ -417,6 +458,17 @@ struct Connect: View {
 		// bleManager.disconnectPeripheral(reconnect: false)
 		Task {
 			try await accessoryManager.disconnect()
+		}
+	}
+}
+
+private extension View {
+	@ViewBuilder
+	func applyScrollContentBackgroundHiddenIfAvailable() -> some View {
+		if #available(iOS 16.0, *) {
+			self.scrollContentBackground(.hidden)
+		} else {
+			self
 		}
 	}
 }

@@ -33,7 +33,7 @@ struct WaypointForm: View {
 	@State private var waypointFailedAlert: Bool = false
 
 	var body: some View {
-		NavigationStack {
+		NavigationStackCompat {
 			if editMode {
 				Text((waypoint.id > 0) ? "Editing Waypoint" : "Create Waypoint")
 					.font(.largeTitle)

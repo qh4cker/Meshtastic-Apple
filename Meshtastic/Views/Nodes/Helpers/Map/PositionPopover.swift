@@ -26,7 +26,7 @@ struct PositionPopover: View {
 	var body: some View {
 		// Node Color from node.num
 		let nodeColor = UIColor(hex: UInt32(position.nodePosition?.num ?? 0))
-		NavigationStack {
+		NavigationStackCompat {
 			VStack {
 				HStack {
 					ZStack {
@@ -220,12 +220,20 @@ struct PositionPopover: View {
 									.padding(.bottom)
 							}
 							if position.nodePosition?.hasDetectionSensorMetrics ?? false {
-								Image(systemName: "sensor.fill")
-									.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
-									.symbolRenderingMode(.hierarchical)
-									.foregroundColor(.accentColor)
-									.font(.largeTitle)
-									.padding(.bottom)
+								if #available(iOS 17.0, *) {
+									Image(systemName: "sensor.fill")
+										.symbolEffect(.variableColor.reversing.cumulative, options: .repeat(20).speed(3))
+										.symbolRenderingMode(.hierarchical)
+										.foregroundColor(.accentColor)
+										.font(.largeTitle)
+										.padding(.bottom)
+								} else {
+									Image(systemName: "sensor.fill")
+										.symbolRenderingMode(.hierarchical)
+										.foregroundColor(.accentColor)
+										.font(.largeTitle)
+										.padding(.bottom)
+								}
 							}
 							BatteryGauge(node: position.nodePosition!)
 						}
