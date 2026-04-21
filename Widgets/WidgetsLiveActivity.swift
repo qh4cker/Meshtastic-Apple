@@ -117,25 +117,32 @@ struct WidgetsLiveActivity: Widget {
     }
 }
 
+@available(iOS 16.1, *)
 struct WidgetsLiveActivity_Previews: PreviewProvider {
 	static let attributes = MeshActivityAttributes(nodeNum: 123456789, name: "RAK Compact Rotary Handset Gray 8E6G")
 	static let state = MeshActivityAttributes.ContentState(uptimeSeconds: 600, channelUtilization: 1.2, airtime: 3.5, sentPackets: 12587, receivedPackets: 12555, badReceivedPackets: 800, dupeReceivedPackets: 100, packetsSentRelay: 250, packetsCanceledRelay: 372, nodesOnline: 99, totalNodes: 100, timerRange: Date.now...Date(timeIntervalSinceNow: 300))
 
     static var previews: some View {
-        attributes
-            .previewContext(state, viewKind: .dynamicIsland(.compact))
-            .previewDisplayName("Compact")
-		attributes
-			.previewContext(state, viewKind: .dynamicIsland(.minimal))
-			.previewDisplayName("Minimal")
-        attributes
-            .previewContext(state, viewKind: .dynamicIsland(.expanded))
-            .previewDisplayName("Expanded")
-		attributes
-			.previewContext(state, viewKind: .content)
-			.previewDisplayName("Notification")
+		Group {
+			if #available(iOS 16.2, *) {
+				attributes
+					.previewContext(state, viewKind: .dynamicIsland(.compact))
+					.previewDisplayName("Compact")
+				attributes
+					.previewContext(state, viewKind: .dynamicIsland(.minimal))
+					.previewDisplayName("Minimal")
+				attributes
+					.previewContext(state, viewKind: .dynamicIsland(.expanded))
+					.previewDisplayName("Expanded")
+			}
+			attributes
+				.previewContext(state)
+				.previewDisplayName("Notification")
+		}
     }
 }
+
+@available(iOS 16.1, *)
 struct LiveActivityView: View {
 	@Environment(\.colorScheme) private var colorScheme
 	@Environment(\.isLuminanceReduced) var isLuminanceReduced
@@ -164,7 +171,7 @@ struct LiveActivityView: View {
 				.aspectRatio(contentMode: .fit)
 				.frame(minWidth: 25, idealWidth: 45, maxWidth: 55)
 			Spacer()
-			NodeInfoView(isLuminanceReduced: _isLuminanceReduced, nodeName: nodeName, uptimeSeconds: uptimeSeconds, channelUtilization: channelUtilization, airtime: airtime, sentPackets: sentPackets, receivedPackets: receivedPackets, badReceivedPackets: badReceivedPackets,
+			NodeInfoView(nodeName: nodeName, uptimeSeconds: uptimeSeconds, channelUtilization: channelUtilization, airtime: airtime, sentPackets: sentPackets, receivedPackets: receivedPackets, badReceivedPackets: badReceivedPackets,
 				dupeReceivedPackets: dupeReceivedPackets, packetsSentRelay: packetsSentRelay, packetsCanceledRelay: packetsCanceledRelay, nodesOnline: nodesOnline, timerRange: timerRange)
 			Spacer()
 		}
@@ -176,6 +183,7 @@ struct LiveActivityView: View {
 	}
 }
 
+@available(iOS 16.1, *)
 struct NodeInfoView: View {
 	@Environment(\.isLuminanceReduced) var isLuminanceReduced
 
@@ -260,6 +268,7 @@ struct NodeInfoView: View {
 	}
 }
 
+@available(iOS 16.1, *)
 struct TimerView: View {
 	@Environment(\.isLuminanceReduced) var isLuminanceReduced
 
@@ -291,6 +300,7 @@ struct TimerView: View {
 	}
 }
 
+@available(iOS 16.1, *)
 struct ExpandedTrailingView: View {
 	var nodeName: String
 	var connected: Bool
