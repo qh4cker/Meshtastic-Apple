@@ -25,6 +25,8 @@ struct Settings: View {
 			List {
 				
 				let connectedNodeNum = bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.num : 0
+				let connectedNode = nodes.first(where: { $0.num == connectedNodeNum })
+				let waitingForNodeRecord = bleManager.connectedPeripheral != nil && connectedNode == nil
 				
 				NavigationLink() {
 					AppSettings()
@@ -38,160 +40,258 @@ struct Settings: View {
 				Section("Radio Configuration") {
 					
 					NavigationLink {
-						ShareChannel(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						ShareChannel(node: connectedNode)
 					} label: {
 						Image(systemName: "qrcode")
 							.symbolRenderingMode(.hierarchical)
-						Text("Share Channel QR Code")
+						VStack(alignment: .leading) {
+							Text("Share Channel QR Code")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						UserConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						UserConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "person.crop.rectangle.fill")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("User")
+						VStack(alignment: .leading) {
+							Text("User")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink() {
 						
-						LoRaConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						LoRaConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "dot.radiowaves.left.and.right")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("LoRa")
+						VStack(alignment: .leading) {
+							Text("LoRa")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink() {
 						
-						BluetoothConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						BluetoothConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "antenna.radiowaves.left.and.right")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Bluetooth (BLE)")
+						VStack(alignment: .leading) {
+							Text("Bluetooth (BLE)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						DeviceConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						DeviceConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "flipphone")
 							.symbolRenderingMode(.hierarchical)
-						Text("Device")
+						VStack(alignment: .leading) {
+							Text("Device")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						DisplayConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						DisplayConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "display")
 							.symbolRenderingMode(.hierarchical)
-						Text("Display (Device Screen)")
+						VStack(alignment: .leading) {
+							Text("Display (Device Screen)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						NetworkConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						NetworkConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "network")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Network (ESP32 Only)")
+						VStack(alignment: .leading) {
+							Text("Network (ESP32 Only)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 				
 					NavigationLink {
-						PositionConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						PositionConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "location")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Position")
+						VStack(alignment: .leading) {
+							Text("Position")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 				}
 				Section("Module Configuration") {
 					
 					NavigationLink {
-						CannedMessagesConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						CannedMessagesConfig(node: connectedNode)
 					} label: {
 
 						Image(systemName: "list.bullet.rectangle.fill")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Canned Messages")
+						VStack(alignment: .leading) {
+							Text("Canned Messages")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						ExternalNotificationConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						ExternalNotificationConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "megaphone")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("External Notification")
+						VStack(alignment: .leading) {
+							Text("External Notification")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						MQTTConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						MQTTConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "dot.radiowaves.right")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("MQTT (ESP32 Only)")
+						VStack(alignment: .leading) {
+							Text("MQTT (ESP32 Only)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						RangeTestConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						RangeTestConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "point.3.connected.trianglepath.dotted")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Range Test (ESP32 Only)")
+						VStack(alignment: .leading) {
+							Text("Range Test (ESP32 Only)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 					NavigationLink {
-						SerialConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						SerialConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "terminal")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Serial")
+						VStack(alignment: .leading) {
+							Text("Serial")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 					
 
 					NavigationLink {
-						TelemetryConfig(node: nodes.first(where: { $0.num == connectedNodeNum }))
+						TelemetryConfig(node: connectedNode)
 					} label: {
 					
 						Image(systemName: "chart.xyaxis.line")
 							.symbolRenderingMode(.hierarchical)
 
-						Text("Telemetry (Sensors)")
+						VStack(alignment: .leading) {
+							Text("Telemetry (Sensors)")
+							if waitingForNodeRecord {
+								Text("Waiting for node record")
+									.font(.caption)
+									.foregroundColor(.secondary)
+							}
+						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil)
+					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
 				}
 				Section(header: Text("Logging")) {
 					
@@ -208,8 +308,6 @@ struct Settings: View {
 					}
 					
 					NavigationLink {
-						
-						let connectedNode = nodes.first(where: { $0.num == connectedNodeNum })
 						
 						AdminMessageList(user: connectedNode?.user)
 					} label: {

@@ -108,12 +108,13 @@ struct UserConfig: View {
 					isPresented: $isPresentingSaveConfirm
 				) {
 					Button("Save User Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+						guard let user = node?.user else { return }
 						
 						var u = User()
 						u.shortName = shortName
 						u.longName = longName
 						
-						let adminMessageId = bleManager.saveUser(config: u, fromUser: node!.user!, toUser: node!.user!)
+						let adminMessageId = bleManager.saveUser(config: u, fromUser: user, toUser: user)
 						
 						if adminMessageId > 0 {
 							
@@ -135,27 +136,26 @@ struct UserConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let user = node?.user else { return }
 				
 				self.bleManager.context = context
 
-				self.shortName = node?.user!.shortName ?? ""
-				self.longName = node?.user!.longName ?? ""
+				self.shortName = user.shortName ?? ""
+				self.longName = user.longName ?? ""
 				self.hasChanges = false
 				self.initialLoad = false
 			}
 		}
 		.onChange(of: shortName) { newShort in
 			
-			if node != nil && node!.user != nil {
-			
-				if newShort != node?.user!.shortName { hasChanges = true }
+			if let user = node?.user {
+				if newShort != user.shortName { hasChanges = true }
 			}
 		}
 		.onChange(of: longName) { newLong in
 			
-			if node != nil && node!.user != nil {
-			
-				if newLong != node?.user!.longName { hasChanges = true }
+			if let user = node?.user {
+				if newLong != user.longName { hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())

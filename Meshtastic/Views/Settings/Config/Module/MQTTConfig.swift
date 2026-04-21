@@ -139,7 +139,7 @@ struct MQTTConfig: View {
 					.keyboardType(.default)
 				}
 			}
-			.disabled(!(node != nil && node!.myInfo?.hasWifi ?? false))
+			.disabled(!(node?.myInfo?.hasWifi ?? false))
 			
 			Button {
 							
@@ -160,6 +160,7 @@ struct MQTTConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save WiFI Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var mqtt = ModuleConfig.MQTTConfig()
 					mqtt.enabled = self.enabled
@@ -169,7 +170,7 @@ struct MQTTConfig: View {
 					mqtt.encryptionEnabled = self.encryptionEnabled
 					mqtt.jsonEnabled = self.jsonEnabled
 									
-					let adminMessageId =  bleManager.saveMQTTConfig(config: mqtt, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveMQTTConfig(config: mqtt, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -193,15 +194,16 @@ struct MQTTConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
 
-				self.enabled = (node!.mqttConfig?.enabled ?? false)
-				self.address = node!.mqttConfig?.address ?? ""
-				self.username = node!.mqttConfig?.username ?? ""
-				self.password = node!.mqttConfig?.password ?? ""
-				self.encryptionEnabled = (node!.mqttConfig?.encryptionEnabled ?? false)
-				self.jsonEnabled = (node!.mqttConfig?.jsonEnabled ?? false)
+				self.enabled = (node.mqttConfig?.enabled ?? false)
+				self.address = node.mqttConfig?.address ?? ""
+				self.username = node.mqttConfig?.username ?? ""
+				self.password = node.mqttConfig?.password ?? ""
+				self.encryptionEnabled = (node.mqttConfig?.encryptionEnabled ?? false)
+				self.jsonEnabled = (node.mqttConfig?.jsonEnabled ?? false)
 
 				self.hasChanges = false
 				self.initialLoad = false
@@ -209,23 +211,20 @@ struct MQTTConfig: View {
 		}
 		.onChange(of: enabled) { newEnabled in
 			
-			if node != nil && node!.mqttConfig != nil {
-				
-				if newEnabled != node!.mqttConfig!.enabled { hasChanges = true }
+			if let mqttConfig = node?.mqttConfig {
+				if newEnabled != mqttConfig.enabled { hasChanges = true }
 			}
 		}
 		.onChange(of: encryptionEnabled) { newEncryptionEnabled in
 			
-			if node != nil && node!.mqttConfig != nil {
-				
-				if newEncryptionEnabled != node!.mqttConfig!.encryptionEnabled { hasChanges = true }
+			if let mqttConfig = node?.mqttConfig {
+				if newEncryptionEnabled != mqttConfig.encryptionEnabled { hasChanges = true }
 			}
 		}
 		.onChange(of: jsonEnabled) { newJsonEnabled in
 			
-			if node != nil && node!.mqttConfig != nil {
-				
-				if newJsonEnabled != node!.mqttConfig!.jsonEnabled { hasChanges = true }
+			if let mqttConfig = node?.mqttConfig {
+				if newJsonEnabled != mqttConfig.jsonEnabled { hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())

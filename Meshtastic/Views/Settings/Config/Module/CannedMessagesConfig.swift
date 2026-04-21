@@ -226,6 +226,7 @@ struct CannedMessagesConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Canned Messages Module Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 						
 					if hasChanges {
 					
@@ -255,7 +256,7 @@ struct CannedMessagesConfig: View {
 						cmc.inputbrokerEventCcw = InputEventChars(rawValue: inputbrokerEventCcw)!.protoEnumValue()
 						cmc.inputbrokerEventPress = InputEventChars(rawValue: inputbrokerEventPress)!.protoEnumValue()
 						
-						let adminMessageId =  bleManager.saveCannedMessageModuleConfig(config: cmc, fromUser: node!.user!, toUser: node!.user!)
+						let adminMessageId =  bleManager.saveCannedMessageModuleConfig(config: cmc, fromUser: user, toUser: user)
 							
 						if adminMessageId > 0 {
 							// Should show a saved successfully alert once I know that to be true
@@ -266,7 +267,7 @@ struct CannedMessagesConfig: View {
 					
 					if hasMessagesChanges {
 						
-						let adminMessageId =  bleManager.saveCannedMessageModuleMessages(messages: messages, fromUser: node!.user!, toUser: node!.user!, wantResponse: true)
+						let adminMessageId =  bleManager.saveCannedMessageModuleMessages(messages: messages, fromUser: user, toUser: user, wantResponse: true)
 							
 						if adminMessageId > 0 {
 							// Should show a saved successfully alert once I know that to be true
@@ -288,18 +289,19 @@ struct CannedMessagesConfig: View {
 			.onAppear {
 
 				if self.initialLoad{
+					guard let node else { return }
 					
 					self.bleManager.context = context
-					self.enabled = node!.cannedMessageConfig?.enabled ?? false
-					self.sendBell = node!.cannedMessageConfig?.sendBell ?? false
-					self.rotary1Enabled = node!.cannedMessageConfig?.rotary1Enabled ?? false
-					self.updown1Enabled = node!.cannedMessageConfig?.updown1Enabled ?? false
-					self.inputbrokerPinA = Int(node!.cannedMessageConfig?.inputbrokerPinA ?? 0)
-					self.inputbrokerPinB = Int(node!.cannedMessageConfig?.inputbrokerPinB ?? 0)
-					self.inputbrokerPinPress = Int(node!.cannedMessageConfig?.inputbrokerPinPress ?? 0)
-					self.inputbrokerEventCw = Int(node!.cannedMessageConfig?.inputbrokerEventCw ?? 0)
-					self.inputbrokerEventCcw = Int(node!.cannedMessageConfig?.inputbrokerEventCcw ?? 0)
-					self.inputbrokerEventPress = Int(node!.cannedMessageConfig?.inputbrokerEventPress ?? 0)
+					self.enabled = node.cannedMessageConfig?.enabled ?? false
+					self.sendBell = node.cannedMessageConfig?.sendBell ?? false
+					self.rotary1Enabled = node.cannedMessageConfig?.rotary1Enabled ?? false
+					self.updown1Enabled = node.cannedMessageConfig?.updown1Enabled ?? false
+					self.inputbrokerPinA = Int(node.cannedMessageConfig?.inputbrokerPinA ?? 0)
+					self.inputbrokerPinB = Int(node.cannedMessageConfig?.inputbrokerPinB ?? 0)
+					self.inputbrokerPinPress = Int(node.cannedMessageConfig?.inputbrokerPinPress ?? 0)
+					self.inputbrokerEventCw = Int(node.cannedMessageConfig?.inputbrokerEventCw ?? 0)
+					self.inputbrokerEventCcw = Int(node.cannedMessageConfig?.inputbrokerEventCcw ?? 0)
+					self.inputbrokerEventPress = Int(node.cannedMessageConfig?.inputbrokerEventPress ?? 0)
 					self.hasChanges = false
 					self.initialLoad = false
 				}
@@ -335,69 +337,59 @@ struct CannedMessagesConfig: View {
 			}
 			.onChange(of: enabled) { newEnabled in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newEnabled != node!.cannedMessageConfig!.enabled { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newEnabled != cannedMessageConfig.enabled { hasChanges = true }
 				}
 			}
 			.onChange(of: sendBell) { newBell in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-					
-					if newBell != node!.cannedMessageConfig!.sendBell { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newBell != cannedMessageConfig.sendBell { hasChanges = true }
 				}
 			}
 			.onChange(of: rotary1Enabled) { newRot1 in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newRot1 != node!.cannedMessageConfig!.rotary1Enabled { hasChanges = true	}
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newRot1 != cannedMessageConfig.rotary1Enabled { hasChanges = true	}
 				}
 			}
 			.onChange(of: updown1Enabled) { newUpDown in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-					
-					if newUpDown != node!.cannedMessageConfig!.updown1Enabled { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newUpDown != cannedMessageConfig.updown1Enabled { hasChanges = true }
 				}
 			}
 			.onChange(of: inputbrokerPinA) { newPinA in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-					
-					if newPinA != node!.cannedMessageConfig!.inputbrokerPinA { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newPinA != cannedMessageConfig.inputbrokerPinA { hasChanges = true }
 				}
 			}
 			.onChange(of: inputbrokerPinB) { newPinB in
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newPinB != node!.cannedMessageConfig!.inputbrokerPinB { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newPinB != cannedMessageConfig.inputbrokerPinB { hasChanges = true }
 				}
 			}
 			.onChange(of: inputbrokerPinPress) { newPinPress in
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newPinPress != node!.cannedMessageConfig!.inputbrokerPinPress { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newPinPress != cannedMessageConfig.inputbrokerPinPress { hasChanges = true }
 				}
 			}
 			.onChange(of: inputbrokerEventCw) { newKeyA in
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newKeyA != node!.cannedMessageConfig!.inputbrokerEventCw { hasChanges = true	}
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newKeyA != cannedMessageConfig.inputbrokerEventCw { hasChanges = true	}
 				}
 			}
 			.onChange(of: inputbrokerEventCcw) { newKeyB in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-				
-					if newKeyB != node!.cannedMessageConfig!.inputbrokerEventCcw { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newKeyB != cannedMessageConfig.inputbrokerEventCcw { hasChanges = true }
 				}
 			}
 			.onChange(of: inputbrokerEventPress) { newKeyPress in
 				
-				if node != nil && node!.cannedMessageConfig != nil {
-					
-					if newKeyPress != node!.cannedMessageConfig!.inputbrokerEventPress { hasChanges = true }
+				if let cannedMessageConfig = node?.cannedMessageConfig {
+					if newKeyPress != cannedMessageConfig.inputbrokerEventPress { hasChanges = true }
 				}
 			}
 			.navigationViewStyle(StackNavigationViewStyle())

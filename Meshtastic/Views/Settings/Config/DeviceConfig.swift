@@ -78,13 +78,14 @@ struct DeviceConfig: View {
 					isPresented: $isPresentingSaveConfirm
 				) {
 					Button("Save Device Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+						guard let user = node?.user else { return }
 						
 						var dc = Config.DeviceConfig()
 						dc.role = DeviceRoles(rawValue: deviceRole)!.protoEnumValue()
 						dc.serialEnabled = serialEnabled
 						dc.debugLogEnabled = debugLogEnabled
 						
-						let adminMessageId = bleManager.saveDeviceConfig(config: dc, fromUser: node!.user!, toUser: node!.user!)
+						let adminMessageId = bleManager.saveDeviceConfig(config: dc, fromUser: user, toUser: user)
 						
 						if adminMessageId > 0 {
 							
@@ -133,35 +134,33 @@ struct DeviceConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
 
-				self.deviceRole = Int(node!.deviceConfig?.role ?? 0)
-				self.serialEnabled = (node!.deviceConfig?.serialEnabled ?? true)
-				self.debugLogEnabled = node!.deviceConfig?.debugLogEnabled ?? false
+				self.deviceRole = Int(node.deviceConfig?.role ?? 0)
+				self.serialEnabled = (node.deviceConfig?.serialEnabled ?? true)
+				self.debugLogEnabled = node.deviceConfig?.debugLogEnabled ?? false
 				self.hasChanges = false
 				self.initialLoad = false
 			}
 		}
 		.onChange(of: deviceRole) { newRole in
 			
-			if node != nil && node!.deviceConfig != nil {
-			
-				if newRole != node!.deviceConfig!.role { hasChanges = true }
+			if let deviceConfig = node?.deviceConfig {
+				if newRole != deviceConfig.role { hasChanges = true }
 			}
 		}
 		.onChange(of: serialEnabled) { newSerial in
 			
-			if node != nil && node!.deviceConfig != nil {
-			
-				if newSerial != node!.deviceConfig!.serialEnabled { hasChanges = true }
+			if let deviceConfig = node?.deviceConfig {
+				if newSerial != deviceConfig.serialEnabled { hasChanges = true }
 			}
 		}
 		.onChange(of: debugLogEnabled) { newDebugLog in
 			
-			if node != nil && node!.deviceConfig != nil {
-				
-				if newDebugLog != node!.deviceConfig!.debugLogEnabled {	hasChanges = true }
+			if let deviceConfig = node?.deviceConfig {
+				if newDebugLog != deviceConfig.debugLogEnabled {	hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())

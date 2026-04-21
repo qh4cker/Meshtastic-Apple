@@ -99,13 +99,14 @@ struct BluetoothConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Bluetooth Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var bc = Config.BluetoothConfig()
 					bc.enabled = enabled
 					bc.mode = BluetoothModes(rawValue: mode)?.protoEnumValue() ?? Config.BluetoothConfig.PairingMode.randomPin
 					bc.fixedPin = UInt32(fixedPin) ?? 123456
 					
-					let adminMessageId =  bleManager.saveBluetoothConfig(config: bc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveBluetoothConfig(config: bc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -129,35 +130,33 @@ struct BluetoothConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
 
-				self.enabled = node!.bluetoothConfig?.enabled ?? true
-				self.mode = Int(node!.bluetoothConfig?.mode ?? 0)
-				self.fixedPin = String(node!.bluetoothConfig?.fixedPin ?? 123456)
+				self.enabled = node.bluetoothConfig?.enabled ?? true
+				self.mode = Int(node.bluetoothConfig?.mode ?? 0)
+				self.fixedPin = String(node.bluetoothConfig?.fixedPin ?? 123456)
 				self.hasChanges = false
 				self.initialLoad = false
 			}
 		}
 		.onChange(of: enabled) { newEnabled in
 			
-			if node != nil && node!.bluetoothConfig != nil {
-
-				if newEnabled != node!.bluetoothConfig!.enabled { hasChanges = true }
+			if let bluetoothConfig = node?.bluetoothConfig {
+				if newEnabled != bluetoothConfig.enabled { hasChanges = true }
 			}
 		}
 		.onChange(of: mode) { newMode in
 
-			if node != nil && node!.bluetoothConfig != nil {
-
-				if newMode != node!.bluetoothConfig!.mode { hasChanges = true }
+			if let bluetoothConfig = node?.bluetoothConfig {
+				if newMode != bluetoothConfig.mode { hasChanges = true }
 			}
 		}
 		.onChange(of: fixedPin) { newFixedPin in
 			
-			if node != nil && node!.bluetoothConfig != nil {
-
-				if newFixedPin != String(node!.bluetoothConfig!.fixedPin) { hasChanges = true }
+			if let bluetoothConfig = node?.bluetoothConfig {
+				if newFixedPin != String(bluetoothConfig.fixedPin) { hasChanges = true }
 			}
 		}
 

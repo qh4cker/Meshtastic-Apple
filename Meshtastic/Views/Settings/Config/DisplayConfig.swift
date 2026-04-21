@@ -93,6 +93,7 @@ struct DisplayConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Display Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var dc = Config.DisplayConfig()
 					dc.gpsFormat = GpsFormats(rawValue: gpsFormat)!.protoEnumValue()
@@ -100,7 +101,7 @@ struct DisplayConfig: View {
 					dc.autoScreenCarouselSecs = UInt32(screenCarouselInterval)
 					dc.compassNorthTop = compassNorthTop
 					
-					let adminMessageId =  bleManager.saveDisplayConfig(config: dc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveDisplayConfig(config: dc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -124,43 +125,40 @@ struct DisplayConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
 
-				self.gpsFormat = Int(node!.displayConfig?.gpsFormat ?? 0)
-				self.screenOnSeconds = Int(node!.displayConfig?.screenOnSeconds ?? 0)
-				self.screenCarouselInterval = Int(node!.displayConfig?.screenCarouselInterval ?? 0)
-				self.compassNorthTop = node!.displayConfig?.compassNorthTop ?? false
+				self.gpsFormat = Int(node.displayConfig?.gpsFormat ?? 0)
+				self.screenOnSeconds = Int(node.displayConfig?.screenOnSeconds ?? 0)
+				self.screenCarouselInterval = Int(node.displayConfig?.screenCarouselInterval ?? 0)
+				self.compassNorthTop = node.displayConfig?.compassNorthTop ?? false
 				self.hasChanges = false
 				self.initialLoad = false
 			}
 		}
 		.onChange(of: screenOnSeconds) { newScreenSecs in
 			
-			if node != nil && node!.displayConfig != nil {
-				
-				if newScreenSecs != node!.displayConfig!.screenOnSeconds { hasChanges = true }
+			if let displayConfig = node?.displayConfig {
+				if newScreenSecs != displayConfig.screenOnSeconds { hasChanges = true }
 			}
 		}
 		.onChange(of: screenCarouselInterval) { newCarouselSecs in
 			
-			if node != nil && node!.displayConfig != nil {
-				
-				if newCarouselSecs != node!.displayConfig!.screenCarouselInterval { hasChanges = true }
+			if let displayConfig = node?.displayConfig {
+				if newCarouselSecs != displayConfig.screenCarouselInterval { hasChanges = true }
 			}
 		}
 		.onChange(of: compassNorthTop) { newCompassNorthTop in
 			
-			if node != nil && node!.displayConfig != nil {
-				
-				if newCompassNorthTop != node!.displayConfig!.compassNorthTop { hasChanges = true }
+			if let displayConfig = node?.displayConfig {
+				if newCompassNorthTop != displayConfig.compassNorthTop { hasChanges = true }
 			}
 		}
 		.onChange(of: gpsFormat) { newGpsFormat in
 			
-			if node != nil && node!.displayConfig != nil {
-			
-				if newGpsFormat != node!.displayConfig!.gpsFormat { hasChanges = true }
+			if let displayConfig = node?.displayConfig {
+				if newGpsFormat != displayConfig.gpsFormat { hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())

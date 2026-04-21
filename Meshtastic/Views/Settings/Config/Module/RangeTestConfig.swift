@@ -87,13 +87,13 @@ struct RangeTestConfig: View {
 						Label("Save", systemImage: "square.and.arrow.down.fill")
 					}
 					.toggleStyle(SwitchToggleStyle(tint: .accentColor))
-					.disabled(!(node != nil && node!.myInfo?.hasWifi ?? false))
+					.disabled(!(node?.myInfo?.hasWifi ?? false))
 					
 					Text("Saves a CSV with the range test message details, currently only available on ESP32 devices with a web server.")
 						.font(.caption)
 				}
 			}
-			.disabled(!(node != nil && node!.myInfo?.hasWifi ?? false))
+			.disabled(!(node?.myInfo?.hasWifi ?? false))
 			
 			Button {
 							
@@ -103,7 +103,7 @@ struct RangeTestConfig: View {
 				
 				Label("Save", systemImage: "square.and.arrow.down")
 			}
-			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || !(node!.myInfo?.hasWifi ?? false))
+			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || !(node?.myInfo?.hasWifi ?? false))
 			.buttonStyle(.bordered)
 			.buttonBorderShape(.capsule)
 			.controlSize(.large)
@@ -114,13 +114,14 @@ struct RangeTestConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Range Test Module Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 						
 				var rtc = ModuleConfig.RangeTestConfig()
 					rtc.enabled = enabled
 					rtc.save = save
 					rtc.sender = UInt32(sender)
 					
-					let adminMessageId =  bleManager.saveRangeTestModuleConfig(config: rtc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveRangeTestModuleConfig(config: rtc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -144,34 +145,32 @@ struct RangeTestConfig: View {
 			.onAppear {
 
 				if self.initialLoad{
+					guard let node else { return }
 					
 					self.bleManager.context = context
-					self.enabled = node!.rangeTestConfig?.enabled ?? false
-					self.save = node!.rangeTestConfig?.save ?? false
-					self.sender = Int(node!.rangeTestConfig?.sender ?? 0)
+					self.enabled = node.rangeTestConfig?.enabled ?? false
+					self.save = node.rangeTestConfig?.save ?? false
+					self.sender = Int(node.rangeTestConfig?.sender ?? 0)
 					self.hasChanges = false
 					self.initialLoad = false
 				}
 			}
 			.onChange(of: enabled) { newEnabled in
 				
-				if node != nil && node!.rangeTestConfig != nil {
-					
-					if newEnabled != node!.rangeTestConfig!.enabled { hasChanges = true }
+				if let rangeTestConfig = node?.rangeTestConfig {
+					if newEnabled != rangeTestConfig.enabled { hasChanges = true }
 				}
 			}
 			.onChange(of: save) { newSave in
 				
-				if node != nil && node!.rangeTestConfig != nil {
-					
-					if newSave != node!.rangeTestConfig!.save { hasChanges = true }
+				if let rangeTestConfig = node?.rangeTestConfig {
+					if newSave != rangeTestConfig.save { hasChanges = true }
 				}
 			}
 			.onChange(of: sender) { newSender in
 				
-				if node != nil && node!.rangeTestConfig != nil {
-				
-					if newSender != node!.rangeTestConfig!.sender { hasChanges = true }
+				if let rangeTestConfig = node?.rangeTestConfig {
+					if newSender != rangeTestConfig.sender { hasChanges = true }
 				}
 			}
 			.navigationViewStyle(StackNavigationViewStyle())

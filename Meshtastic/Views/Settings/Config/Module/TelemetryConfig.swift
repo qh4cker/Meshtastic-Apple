@@ -144,7 +144,7 @@ struct TelemetryConfig: View {
 				
 				Label("Save", systemImage: "square.and.arrow.down")
 			}
-			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || node!.telemetryConfig == nil)
+			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || node?.telemetryConfig == nil)
 			.buttonStyle(.bordered)
 			.buttonBorderShape(.capsule)
 			.controlSize(.large)
@@ -155,6 +155,7 @@ struct TelemetryConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Telemetry Module Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 						
 					var tc = ModuleConfig.TelemetryConfig()
 					tc.deviceUpdateInterval = UInt32(deviceUpdateInterval)
@@ -163,7 +164,7 @@ struct TelemetryConfig: View {
 					tc.environmentScreenEnabled = environmentScreenEnabled
 					tc.environmentDisplayFahrenheit = environmentDisplayFahrenheit
 					
-					let adminMessageId = bleManager.saveTelemetryModuleConfig(config: tc, fromUser: node!.user!, toUser:  node!.user!)
+					let adminMessageId = bleManager.saveTelemetryModuleConfig(config: tc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -187,50 +188,47 @@ struct TelemetryConfig: View {
 			.onAppear {
 
 				if self.initialLoad{
+					guard let node else { return }
 					
 					self.bleManager.context = context
-					self.deviceUpdateInterval = Int(node!.telemetryConfig?.deviceUpdateInterval ?? 0)
-					self.environmentUpdateInterval = Int(node!.telemetryConfig?.environmentUpdateInterval ?? 0)
-					self.environmentMeasurementEnabled = node!.telemetryConfig?.environmentMeasurementEnabled ?? false
-					self.environmentScreenEnabled = node!.telemetryConfig?.environmentScreenEnabled ?? false
-					self.environmentDisplayFahrenheit = node!.telemetryConfig?.environmentDisplayFahrenheit ?? false
+					self.deviceUpdateInterval = Int(node.telemetryConfig?.deviceUpdateInterval ?? 0)
+					self.environmentUpdateInterval = Int(node.telemetryConfig?.environmentUpdateInterval ?? 0)
+					self.environmentMeasurementEnabled = node.telemetryConfig?.environmentMeasurementEnabled ?? false
+					self.environmentScreenEnabled = node.telemetryConfig?.environmentScreenEnabled ?? false
+					self.environmentDisplayFahrenheit = node.telemetryConfig?.environmentDisplayFahrenheit ?? false
 					self.hasChanges = false
 					self.initialLoad = false
 				}
 			}
 			.onChange(of: deviceUpdateInterval) { newDeviceInterval in
 				
-				if node != nil && node!.telemetryConfig != nil {
-				
-					if newDeviceInterval != node!.telemetryConfig!.deviceUpdateInterval { hasChanges = true	}
+				if let telemetryConfig = node?.telemetryConfig {
+					if newDeviceInterval != telemetryConfig.deviceUpdateInterval { hasChanges = true	}
 				}
 			}
 			.onChange(of: environmentUpdateInterval) { newEnvInterval in
 				
-				if node != nil && node!.telemetryConfig != nil {
-				
-					if newEnvInterval != node!.telemetryConfig!.environmentUpdateInterval { hasChanges = true	}
+				if let telemetryConfig = node?.telemetryConfig {
+					if newEnvInterval != telemetryConfig.environmentUpdateInterval { hasChanges = true	}
 				}
 			}
 			.onChange(of: environmentMeasurementEnabled) { newEnvEnabled in
 				
-				if node != nil && node!.telemetryConfig != nil {
-				
-					if newEnvEnabled != node!.telemetryConfig!.environmentMeasurementEnabled { hasChanges = true	}
+				if let telemetryConfig = node?.telemetryConfig {
+					if newEnvEnabled != telemetryConfig.environmentMeasurementEnabled { hasChanges = true	}
 				}
 			}
 			.onChange(of: environmentScreenEnabled) { newEnvScreenEnabled in
 				
-				if node!.telemetryConfig != nil {
+				if node?.telemetryConfig != nil {
 				
-					if newEnvScreenEnabled != node!.telemetryConfig!.environmentScreenEnabled { hasChanges = true	}
+					if newEnvScreenEnabled != node?.telemetryConfig?.environmentScreenEnabled { hasChanges = true	}
 				}
 			}
 			.onChange(of: environmentDisplayFahrenheit) { newEnvDisplayF in
 				
-				if node != nil && node!.telemetryConfig != nil {
-				
-					if newEnvDisplayF != node!.telemetryConfig!.environmentDisplayFahrenheit { hasChanges = true	}
+				if let telemetryConfig = node?.telemetryConfig {
+					if newEnvDisplayF != telemetryConfig.environmentDisplayFahrenheit { hasChanges = true	}
 				}
 			}
 			.navigationViewStyle(StackNavigationViewStyle())

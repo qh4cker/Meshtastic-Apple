@@ -82,13 +82,14 @@ struct LoRaConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save LoRa Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var lc = Config.LoRaConfig()
 					lc.hopLimit = UInt32(hopLimit)
 					lc.region = RegionCodes(rawValue: region)!.protoEnumValue()
 					lc.modemPreset = ModemPresets(rawValue: modemPreset)!.protoEnumValue()
 					
-					let adminMessageId = bleManager.saveLoRaConfig(config: lc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId = bleManager.saveLoRaConfig(config: lc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -115,35 +116,33 @@ struct LoRaConfig: View {
 			self.bleManager.context = context
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 			
-				self.hopLimit = Int(node!.loRaConfig?.hopLimit ?? 0)
-				self.region = Int(node!.loRaConfig?.regionCode ?? 0)
-				self.modemPreset = Int(node!.loRaConfig?.modemPreset ?? 0)
-				self.txPower = Int(node!.loRaConfig?.txPower ?? 0)
+				self.hopLimit = Int(node.loRaConfig?.hopLimit ?? 0)
+				self.region = Int(node.loRaConfig?.regionCode ?? 0)
+				self.modemPreset = Int(node.loRaConfig?.modemPreset ?? 0)
+				self.txPower = Int(node.loRaConfig?.txPower ?? 0)
 				self.hasChanges = false
 				self.initialLoad = false
 			}
 		}
 		.onChange(of: region) { newRegion in
 			
-			if node != nil && node!.loRaConfig != nil {
-				
-				if newRegion != node!.loRaConfig!.regionCode { hasChanges = true }
+			if let loRaConfig = node?.loRaConfig {
+				if newRegion != loRaConfig.regionCode { hasChanges = true }
 			}
 		}
 		.onChange(of: modemPreset) { newModemPreset in
 			
-			if node != nil && node!.loRaConfig != nil {
-				
-				if newModemPreset != node!.loRaConfig!.modemPreset { hasChanges = true }
+			if let loRaConfig = node?.loRaConfig {
+				if newModemPreset != loRaConfig.modemPreset { hasChanges = true }
 			}
 		}
 		.onChange(of: hopLimit) { newHopLimit in
 			
-			if node != nil && node!.loRaConfig != nil {
-				
-				if newHopLimit != node!.loRaConfig!.hopLimit { hasChanges = true }
+			if let loRaConfig = node?.loRaConfig {
+				if newHopLimit != loRaConfig.hopLimit { hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())

@@ -115,7 +115,7 @@ struct SerialConfig: View {
 				
 				Label("Save", systemImage: "square.and.arrow.down")
 			}
-			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || !(node!.myInfo?.hasWifi ?? false))
+			.disabled(bleManager.connectedPeripheral == nil || !hasChanges || !(node?.myInfo?.hasWifi ?? false))
 			.buttonStyle(.bordered)
 			.buttonBorderShape(.capsule)
 			.controlSize(.large)
@@ -126,6 +126,7 @@ struct SerialConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Serial Module Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 						
 					var sc = ModuleConfig.SerialConfig()
 					sc.enabled = enabled
@@ -136,7 +137,7 @@ struct SerialConfig: View {
 					sc.timeout = UInt32(timeout)
 					sc.mode	= SerialModeTypes(rawValue: mode)!.protoEnumValue()
 					
-					let adminMessageId =  bleManager.saveSerialModuleConfig(config: sc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveSerialModuleConfig(config: sc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -160,16 +161,17 @@ struct SerialConfig: View {
 			.onAppear {
 
 				if self.initialLoad{
+					guard let node else { return }
 					
 					self.bleManager.context = context
 					
-					self.enabled = node!.serialConfig?.enabled ?? false
-					self.echo = node!.serialConfig?.echo ?? false
-					self.rxd = Int(node!.serialConfig?.rxd ?? 0)
-					self.txd = Int(node!.serialConfig?.txd ?? 0)
-					self.baudRate = Int(node!.serialConfig?.baudRate ?? 0)
-					self.timeout = Int(node!.serialConfig?.timeout ?? 0)
-					self.mode = Int(node!.serialConfig?.mode ?? 0)
+					self.enabled = node.serialConfig?.enabled ?? false
+					self.echo = node.serialConfig?.echo ?? false
+					self.rxd = Int(node.serialConfig?.rxd ?? 0)
+					self.txd = Int(node.serialConfig?.txd ?? 0)
+					self.baudRate = Int(node.serialConfig?.baudRate ?? 0)
+					self.timeout = Int(node.serialConfig?.timeout ?? 0)
+					self.mode = Int(node.serialConfig?.mode ?? 0)
 					
 					self.hasChanges = false
 					self.initialLoad = false
@@ -177,51 +179,44 @@ struct SerialConfig: View {
 			}
 			.onChange(of: enabled) { newEnabled in
 				
-				if node != nil && node!.serialConfig != nil {
-				
-					if newEnabled != node!.serialConfig!.enabled { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newEnabled != serialConfig.enabled { hasChanges = true	}
 				}
 			}
 			.onChange(of: echo) { newEcho in
 				
-				if node != nil && node!.serialConfig != nil {
-				
-					if newEcho != node!.serialConfig!.echo { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newEcho != serialConfig.echo { hasChanges = true	}
 				}
 			}
 			.onChange(of: rxd) { newRxd in
 				
-				if node != nil && node!.serialConfig != nil {
-				
-					if newRxd != node!.serialConfig!.rxd { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newRxd != serialConfig.rxd { hasChanges = true	}
 				}
 			}
 			.onChange(of: txd) { newTxd in
 				
-				if node != nil && node!.serialConfig != nil {
-
-					if newTxd != node!.serialConfig!.txd { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newTxd != serialConfig.txd { hasChanges = true	}
 				}
 			}
 			.onChange(of: baudRate) { newBaud in
 				
-				if node != nil && node!.serialConfig != nil {
-				
-					if newBaud != node!.serialConfig!.baudRate { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newBaud != serialConfig.baudRate { hasChanges = true	}
 				}
 			}
 			.onChange(of: timeout) { newTimeout in
 				
-				if node != nil && node!.serialConfig != nil {
-					
-					if newTimeout != node!.serialConfig!.timeout { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newTimeout != serialConfig.timeout { hasChanges = true	}
 				}
 			}
 			.onChange(of: mode) { newMode in
 				
-				if node != nil && node!.serialConfig != nil {
-					
-					if newMode != node!.serialConfig!.mode { hasChanges = true	}
+			if let serialConfig = node?.serialConfig {
+				if newMode != serialConfig.mode { hasChanges = true	}
 				}
 			}
 			.navigationViewStyle(StackNavigationViewStyle())

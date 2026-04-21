@@ -229,6 +229,7 @@ struct PositionConfig: View {
 				titleVisibility: .visible
 			) {
 				Button("Save Position Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var pc = Config.PositionConfig()
 					pc.positionBroadcastSmartEnabled = smartPositionEnabled
@@ -258,7 +259,7 @@ struct PositionConfig: View {
 						let sendPosition = bleManager.sendPosition(destNum: bleManager.connectedPeripheral.num, wantAck: true)
 					}
 
-					let adminMessageId =  bleManager.savePositionConfig(config: pc, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.savePositionConfig(config: pc, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0{
 						
@@ -282,15 +283,16 @@ struct PositionConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
-				self.smartPositionEnabled = node!.positionConfig?.smartPositionEnabled ?? true
-				self.deviceGpsEnabled = node!.positionConfig?.deviceGpsEnabled ?? true
-				self.fixedPosition = node!.positionConfig?.fixedPosition ?? false
-				self.gpsUpdateInterval = Int(node!.positionConfig?.gpsUpdateInterval ?? 0)
-				self.gpsAttemptTime = Int(node!.positionConfig?.gpsAttemptTime ?? 0)
-				self.positionBroadcastSeconds = Int(node!.positionConfig?.positionBroadcastSeconds ?? 0)
-				self.positionFlags = Int(node!.positionConfig?.positionFlags ?? 3)
+				self.smartPositionEnabled = node.positionConfig?.smartPositionEnabled ?? true
+				self.deviceGpsEnabled = node.positionConfig?.deviceGpsEnabled ?? true
+				self.fixedPosition = node.positionConfig?.fixedPosition ?? false
+				self.gpsUpdateInterval = Int(node.positionConfig?.gpsUpdateInterval ?? 0)
+				self.gpsAttemptTime = Int(node.positionConfig?.gpsAttemptTime ?? 0)
+				self.positionBroadcastSeconds = Int(node.positionConfig?.positionBroadcastSeconds ?? 0)
+				self.positionFlags = Int(node.positionConfig?.positionFlags ?? 3)
 				
 				let pf = PositionFlags(rawValue: self.positionFlags)
 				
@@ -312,30 +314,26 @@ struct PositionConfig: View {
 		}
 		.onChange(of: smartPositionEnabled) { newSmartPosition in
 			
-			if node != nil && node!.positionConfig != nil {
-				
-				if newSmartPosition != node!.positionConfig!.smartPositionEnabled { hasChanges = true }
+			if let positionConfig = node?.positionConfig {
+				if newSmartPosition != positionConfig.smartPositionEnabled { hasChanges = true }
 			}
 		}
 		.onChange(of: positionBroadcastSeconds) { newPositionBroadcastSeconds in
 			
-			if node != nil && node!.positionConfig != nil {
-				
-				if newPositionBroadcastSeconds != node!.positionConfig!.positionBroadcastSeconds { hasChanges = true }
+			if let positionConfig = node?.positionConfig {
+				if newPositionBroadcastSeconds != positionConfig.positionBroadcastSeconds { hasChanges = true }
 			}
 		}
 		.onChange(of: deviceGpsEnabled) { newDeviceGps in
 			
-			if node != nil && node!.positionConfig != nil {
-				
-				if newDeviceGps != node!.positionConfig!.deviceGpsEnabled { hasChanges = true }
+			if let positionConfig = node?.positionConfig {
+				if newDeviceGps != positionConfig.deviceGpsEnabled { hasChanges = true }
 			}
 		}
 		.onChange(of: fixedPosition) { newFixed in
 			
-			if node != nil && node!.positionConfig != nil {
-			
-				if newFixed != node!.positionConfig!.fixedPosition { hasChanges = true }
+			if let positionConfig = node?.positionConfig {
+				if newFixed != positionConfig.fixedPosition { hasChanges = true }
 			}
 		}
 		.onChange(of: includePosAltitude || includePosAltMsl || includePosGeoSep || includePosDop || includePosHvdop || includePosSatsinview || includePosSeqNos || includePosTimestamp || includePosSpeed || includePosHeading) { newFlags in

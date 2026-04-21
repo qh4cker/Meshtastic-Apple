@@ -103,7 +103,7 @@ struct NetworkConfig: View {
 					.keyboardType(.default)
 				}
 			}
-			.disabled(!(node != nil && node!.myInfo?.hasWifi ?? false))
+			.disabled(!(node?.myInfo?.hasWifi ?? false))
 			
 			Button {
 							
@@ -124,6 +124,7 @@ struct NetworkConfig: View {
 				isPresented: $isPresentingSaveConfirm
 			) {
 				Button("Save Network Config to \(bleManager.connectedPeripheral != nil ? bleManager.connectedPeripheral.longName : "Unknown")?") {
+					guard let user = node?.user else { return }
 					
 					var network = Config.NetworkConfig()
 					network.wifiEnabled = self.wifiEnabled
@@ -131,7 +132,7 @@ struct NetworkConfig: View {
 					network.wifiPsk = self.wifiPsk
 					network.wifiMode = WiFiModes(rawValue: self.wifiMode)?.protoEnumValue() ?? WiFiModes.client.protoEnumValue()
 					
-					let adminMessageId =  bleManager.saveWiFiConfig(config: network, fromUser: node!.user!, toUser: node!.user!)
+					let adminMessageId =  bleManager.saveWiFiConfig(config: network, fromUser: user, toUser: user)
 					
 					if adminMessageId > 0 {
 						
@@ -155,13 +156,14 @@ struct NetworkConfig: View {
 		.onAppear {
 
 			if self.initialLoad{
+				guard let node else { return }
 				
 				self.bleManager.context = context
 
-				self.wifiEnabled = (node!.networkConfig?.wifiEnabled ?? false)
-				self.wifiSsid = node!.networkConfig?.wifiSsid ?? ""
-				self.wifiPsk = node!.networkConfig?.wifiPsk ?? ""
-				self.wifiMode = Int(node!.networkConfig?.wifiMode ?? 0)
+				self.wifiEnabled = (node.networkConfig?.wifiEnabled ?? false)
+				self.wifiSsid = node.networkConfig?.wifiSsid ?? ""
+				self.wifiPsk = node.networkConfig?.wifiPsk ?? ""
+				self.wifiMode = Int(node.networkConfig?.wifiMode ?? 0)
 
 				self.hasChanges = false
 				self.initialLoad = false
@@ -169,30 +171,26 @@ struct NetworkConfig: View {
 		}
 		.onChange(of: wifiEnabled) { newEnabled in
 			
-			if node != nil && node!.networkConfig != nil {
-				
-				if newEnabled != node!.networkConfig!.wifiEnabled { hasChanges = true }
+			if let networkConfig = node?.networkConfig {
+				if newEnabled != networkConfig.wifiEnabled { hasChanges = true }
 			}
 		}
 		.onChange(of: wifiSsid) { newSSID in
 			
-			if node != nil && node!.networkConfig != nil {
-				
-				if newSSID != node!.networkConfig!.wifiSsid { hasChanges = true }
+			if let networkConfig = node?.networkConfig {
+				if newSSID != networkConfig.wifiSsid { hasChanges = true }
 			}
 		}
 		.onChange(of: wifiPsk) { newPsk in
 			
-			if node != nil && node!.networkConfig != nil {
-				
-				if newPsk != node!.networkConfig!.wifiPsk { hasChanges = true }
+			if let networkConfig = node?.networkConfig {
+				if newPsk != networkConfig.wifiPsk { hasChanges = true }
 			}
 		}
 		.onChange(of: wifiMode) { newMode in
 			
-			if node != nil && node!.networkConfig != nil {
-				
-				if newMode != node!.networkConfig!.wifiMode { hasChanges = true }
+			if let networkConfig = node?.networkConfig {
+				if newMode != networkConfig.wifiMode { hasChanges = true }
 			}
 		}
 		.navigationViewStyle(StackNavigationViewStyle())
