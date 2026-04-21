@@ -701,9 +701,15 @@
 		DDFFA7462B3A7F3C004730DB /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		DD4C11E02E8099C3003F2F2E /* PreferenceKeys */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = PreferenceKeys; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
+/* Begin PBXGroup section (PreferenceKeys) */
+		DD4C11E02E8099C3003F2F2E /* PreferenceKeys */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = PreferenceKeys;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section (PreferenceKeys) */
 
 /* Begin PBXFrameworksBuildPhase section */
 		25F5D5C42C4375A8008036E3 /* Frameworks */ = {
@@ -1499,9 +1505,6 @@
 			);
 			dependencies = (
 				DDDE5A0229AF163E00490C6C /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DD4C11E02E8099C3003F2F2E /* PreferenceKeys */,
 			);
 			name = Meshtastic;
 			packageProductDependencies = (
