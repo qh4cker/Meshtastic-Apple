@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       git_ref:
-        default: "4cc77ac5434e94a51bf8d512a05c21dceef7e60e"
+        default: "ios15"
 
 jobs:
   build-device-unsigned:
