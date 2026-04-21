@@ -53,7 +53,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						UserConfig(node: connectedNode)
@@ -71,7 +71,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink() {
 						
@@ -90,7 +90,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink() {
 						
@@ -109,7 +109,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						DeviceConfig(node: connectedNode)
@@ -126,7 +126,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						DisplayConfig(node: connectedNode)
@@ -143,7 +143,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						NetworkConfig(node: connectedNode)
@@ -161,7 +161,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 				
 					NavigationLink {
 						PositionConfig(node: connectedNode)
@@ -179,7 +179,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 				}
 				Section("Module Configuration") {
@@ -200,7 +200,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						ExternalNotificationConfig(node: connectedNode)
@@ -218,7 +218,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						MQTTConfig(node: connectedNode)
@@ -236,7 +236,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						RangeTestConfig(node: connectedNode)
@@ -254,7 +254,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 					NavigationLink {
 						SerialConfig(node: connectedNode)
@@ -272,7 +272,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 					
 
 					NavigationLink {
@@ -291,7 +291,7 @@ struct Settings: View {
 							}
 						}
 					}
-					.disabled(bleManager.connectedPeripheral == nil || connectedNode == nil)
+					.disabled(bleManager.connectedPeripheral == nil)
 				}
 				Section(header: Text("Logging")) {
 					
