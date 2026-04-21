@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       git_ref:
-        default: "4af2fbc749bdacc9f08f0bdbfd6f36658923e339"
+        default: "4cc77ac5434e94a51bf8d512a05c21dceef7e60e"
 
 jobs:
   build-device-unsigned:
