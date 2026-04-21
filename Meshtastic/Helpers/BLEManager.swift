@@ -52,7 +52,10 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
     let meshtasticServiceCBUUID = CBUUID(string: "0x6BA1B218-15A8-461F-9FA8-5DCAE273EAFD")
     let TORADIO_UUID = CBUUID(string: "0xF75C76D2-129E-4DAD-A1DD-7866124401E7")
-    let FROMRADIO_UUID = CBUUID(string: "0x8BA2BCC2-EE02-4A55-A531-C525C5E454D5")
+	/// Primary FROMRADIO (current firmware).
+	let FROMRADIO_UUID = CBUUID(string: "2C55E69E-4993-11ED-B878-0242AC120002")
+	/// Legacy FROMRADIO UUID (older firmware); same Meshtastic semantics as FROMRADIO.
+	let EOL_FROMRADIO_UUID = CBUUID(string: "0x8BA2BCC2-EE02-4A55-A531-C525C5E454D5")
     let FROMNUM_UUID = CBUUID(string: "0xED9DA18C-A800-4F66-A670-AA7547E34453")
 	
 	// Meshtastic DFU details
@@ -191,6 +194,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
 		guard let connectedPeripheral = connectedPeripheral else { return }
 		self.centralManager?.cancelPeripheralConnection(connectedPeripheral.peripheral)
+		FROMRADIO_characteristic = nil
 		self.isConnected = false
     }
 
@@ -323,7 +327,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 			
 				if meshLoggingEnabled { MeshLogger.log("✅ BLE Service for Meshtastic discovered by \(peripheral.name ?? "Unknown")") }
                 //peripheral.discoverCharacteristics(nil, for: service)
-                peripheral.discoverCharacteristics([TORADIO_UUID, FROMRADIO_UUID, FROMNUM_UUID], for: service)
+                peripheral.discoverCharacteristics([TORADIO_UUID, FROMRADIO_UUID, EOL_FROMRADIO_UUID, FROMNUM_UUID], for: service)
 
             }  else if (service.uuid == DFUSERVICE_UUID) {
 				
@@ -358,11 +362,15 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 				if meshLoggingEnabled { MeshLogger.log("✅ BLE did discover TORADIO characteristic for Meshtastic by \(peripheral.name ?? "Unknown")") }
 				TORADIO_characteristic = characteristic
 
-			case FROMRADIO_UUID:
-				
-				if meshLoggingEnabled { MeshLogger.log("✅ BLE did discover FROMRADIO characteristic for Meshtastic by \(peripheral.name ?? "Unknown")") }
+			case FROMRADIO_UUID, EOL_FROMRADIO_UUID:
+
+				if characteristic.uuid == EOL_FROMRADIO_UUID {
+					if meshLoggingEnabled { MeshLogger.log("✅ BLE did discover FROMRADIO (legacy UUID) for Meshtastic by \(peripheral.name ?? "Unknown")") }
+				} else {
+					if meshLoggingEnabled { MeshLogger.log("✅ BLE did discover FROMRADIO characteristic for Meshtastic by \(peripheral.name ?? "Unknown")") }
+				}
 				FROMRADIO_characteristic = characteristic
-				peripheral.readValue(for: FROMRADIO_characteristic)
+				peripheral.readValue(for: characteristic)
 
 			case FROMNUM_UUID:
 				
@@ -404,24 +412,34 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 				break
 			}
 		}
-		if (![FROMNUM_characteristic, FROMNUM_characteristic, TORADIO_characteristic].contains(nil)) {
+		if FROMNUM_characteristic != nil && FROMRADIO_characteristic != nil && TORADIO_characteristic != nil {
 			sendWantConfig()
 		}
     }
 	
 	func sendWantConfig() {
-		guard (connectedPeripheral!.peripheral.state == CBPeripheralState.connected) else { return }
+		guard let connectedPeripheral = connectedPeripheral,
+			  connectedPeripheral.peripheral.state == CBPeripheralState.connected else { return }
 
-		MeshLogger.log("ℹ️ Issuing wantConfig to \(connectedPeripheral!.peripheral.name ?? "Unknown")")
+		guard FROMRADIO_characteristic != nil, TORADIO_characteristic != nil else {
+			lastConnectionError = "🚫 BLE: required characteristics missing. Try forgetting the device in Settings > Bluetooth, then reconnect."
+			if meshLoggingEnabled { MeshLogger.log("🚫 BLE sendWantConfig aborted: FROMRADIO or TORADIO nil for \(connectedPeripheral.peripheral.name ?? "Unknown")") }
+			return
+		}
+
+		MeshLogger.log("ℹ️ Issuing wantConfig to \(connectedPeripheral.peripheral.name ?? "Unknown")")
 		//BLE Characteristics discovered, issue wantConfig
 		var toRadio: ToRadio = ToRadio()
 		configNonce += 1
 		toRadio.wantConfigID = configNonce
-		let binaryData: Data = try! toRadio.serializedData()
-		connectedPeripheral!.peripheral.writeValue(binaryData, for: TORADIO_characteristic, type: .withResponse)
-		
+		guard let binaryData = try? toRadio.serializedData() else {
+			if meshLoggingEnabled { MeshLogger.log("🚫 BLE wantConfig serialization failed for \(connectedPeripheral.peripheral.name ?? "Unknown")") }
+			return
+		}
+		connectedPeripheral.peripheral.writeValue(binaryData, for: TORADIO_characteristic, type: .withResponse)
+
 		// Either Read the config complete value or from num notify value
-		connectedPeripheral!.peripheral.readValue(for: FROMRADIO_characteristic)
+		connectedPeripheral.peripheral.readValue(for: FROMRADIO_characteristic)
 	}
 
 	func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
@@ -461,7 +479,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
 
         switch characteristic.uuid {
 
-		case FROMRADIO_UUID:
+		case FROMRADIO_UUID, EOL_FROMRADIO_UUID:
 			
 			if characteristic.value == nil || characteristic.value!.isEmpty {
 				return
@@ -642,7 +660,9 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         }
 		
 		// Either Read the config complete value or from num notify value
-		peripheral.readValue(for: FROMRADIO_characteristic)
+		if FROMRADIO_characteristic != nil {
+			peripheral.readValue(for: FROMRADIO_characteristic)
+		}
 	}
 
 	public func sendMessage(message: String, toUserNum: Int64, isEmoji: Bool, replyID: Int64) -> Bool {
