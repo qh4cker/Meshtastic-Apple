@@ -119,25 +119,29 @@ struct WidgetsLiveActivity: Widget {
 
 @available(iOS 16.1, *)
 struct WidgetsLiveActivity_Previews: PreviewProvider {
-	static let attributes = MeshActivityAttributes(nodeNum: 123456789, name: "RAK Compact Rotary Handset Gray 8E6G")
-	static let state = MeshActivityAttributes.ContentState(uptimeSeconds: 600, channelUtilization: 1.2, airtime: 3.5, sentPackets: 12587, receivedPackets: 12555, badReceivedPackets: 800, dupeReceivedPackets: 100, packetsSentRelay: 250, packetsCanceledRelay: 372, nodesOnline: 99, totalNodes: 100, timerRange: Date.now...Date(timeIntervalSinceNow: 300))
-
     static var previews: some View {
-		Group {
-			if #available(iOS 16.2, *) {
+		if #available(iOS 16.1, *) {
+			let attributes = MeshActivityAttributes(nodeNum: 123456789, name: "RAK Compact Rotary Handset Gray 8E6G")
+			let state = MeshActivityAttributes.ContentState(uptimeSeconds: 600, channelUtilization: 1.2, airtime: 3.5, sentPackets: 12587, receivedPackets: 12555, badReceivedPackets: 800, dupeReceivedPackets: 100, packetsSentRelay: 250, packetsCanceledRelay: 372, nodesOnline: 99, totalNodes: 100, timerRange: Date.now...Date(timeIntervalSinceNow: 300))
+
+			Group {
+				if #available(iOS 16.2, *) {
+					attributes
+						.previewContext(state, viewKind: .dynamicIsland(.compact))
+						.previewDisplayName("Compact")
+					attributes
+						.previewContext(state, viewKind: .dynamicIsland(.minimal))
+						.previewDisplayName("Minimal")
+					attributes
+						.previewContext(state, viewKind: .dynamicIsland(.expanded))
+						.previewDisplayName("Expanded")
+				}
 				attributes
-					.previewContext(state, viewKind: .dynamicIsland(.compact))
-					.previewDisplayName("Compact")
-				attributes
-					.previewContext(state, viewKind: .dynamicIsland(.minimal))
-					.previewDisplayName("Minimal")
-				attributes
-					.previewContext(state, viewKind: .dynamicIsland(.expanded))
-					.previewDisplayName("Expanded")
+					.previewContext(state)
+					.previewDisplayName("Notification")
 			}
-			attributes
-				.previewContext(state)
-				.previewDisplayName("Notification")
+		} else {
+			EmptyView()
 		}
     }
 }
